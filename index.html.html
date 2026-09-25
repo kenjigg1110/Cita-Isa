@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Una cita para Isa</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><path fill=%22%23ff8fab%22 d=%22M16 28S3 19.5 3 11.5C3 6.8 6.8 3 11.5 3c2.6 0 4.9 1.2 6.5 3.1C19.6 4.2 21.9 3 24.5 3 29.2 3 33 6.8 33 11.5c0 8-13 16.5-13 16.5z%22/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink-bg-1:#fff0f5;
+    --pink-bg-2:#ffe1ec;
+    --pink-mid:#ffb6c9;
+    --pink-strong:#ff8fab;
+    --pink-deep:#e6567a;
+    --cream:#fffaf7;
+    --ink:#6b3a4a;
+    --ink-soft:#9c6b7a;
+    --yes-shadow: rgba(255,143,171,.45);
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{
+    height:100%;
+    margin:0;
+  }
+
+  body{
+    font-family:'Quicksand', 'Segoe UI', sans-serif;
+    background:
+      radial-gradient(circle at 15% 20%, var(--pink-bg-2), transparent 55%),
+      radial-gradient(circle at 85% 80%, var(--pink-bg-2), transparent 55%),
+      var(--pink-bg-1);
+    color:var(--ink);
+    min-height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow-x:hidden;
+    padding-top:env(safe-area-inset-top, 0px);
+    padding-bottom:env(safe-area-inset-bottom, 0px);
+    position:relative;
+  }
+
+  /* floating hearts background */
+  .hearts{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    overflow:hidden;
+    z-index:0;
+  }
+  .hearts span{
+    position:absolute;
+    bottom:-10%;
+    opacity:.55;
+    animation:float-up linear infinite;
+  }
+  .hearts span svg{ display:block; }
+  @keyframes float-up{
+    0%{ transform:translateY(0) rotate(0deg); opacity:0; }
+    10%{ opacity:.55; }
+    90%{ opacity:.55; }
+    100%{ transform:translateY(-110vh) rotate(25deg); opacity:0; }
+  }
+
+  .stage{
+    position:relative;
+    z-index:1;
+    width:100%;
+    max-width:480px;
+    margin:24px;
+  }
+
+  .card{
+    background:var(--cream);
+    border-radius:32px;
+    padding:48px 32px 40px;
+    text-align:center;
+    box-shadow:0 24px 60px -20px rgba(230,86,122,.35), 0 2px 8px rgba(230,86,122,.08);
+    display:none;
+    animation:appear .5s cubic-bezier(.2,.9,.3,1.2);
+  }
+  .card.active{ display:block; }
+
+  @keyframes appear{
+    from{ opacity:0; transform:translateY(18px) scale(.97); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+
+  .eyebrow-heart{
+    width:44px;
+    height:44px;
+    margin-bottom:6px;
+    display:inline-block;
+    animation:beat 1.6s ease-in-out infinite;
+  }
+  .eyebrow-heart svg{ width:100%; height:100%; }
+  @keyframes beat{
+    0%,100%{ transform:scale(1); }
+    50%{ transform:scale(1.14); }
+  }
+
+  h1{
+    font-family:'Caveat','Quicksand',cursive;
+    font-weight:700;
+    font-size:2.6rem;
+    line-height:1.15;
+    margin:8px 0 6px;
+    color:var(--pink-deep);
+  }
+
+  p.sub{
+    font-size:1.05rem;
+    color:var(--ink-soft);
+    margin:0 0 30px;
+    line-height:1.5;
+  }
+
+  /* buttons */
+  .btn{
+    font-family:'Quicksand', sans-serif;
+    font-weight:700;
+    font-size:1.05rem;
+    border:none;
+    border-radius:999px;
+    padding:16px 38px;
+    cursor:pointer;
+    color:#fff;
+    background:linear-gradient(135deg, var(--pink-strong), var(--pink-deep));
+    box-shadow:0 10px 24px -8px var(--yes-shadow);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn:hover{ transform:translateY(-2px); box-shadow:0 14px 28px -8px var(--yes-shadow); }
+  .btn:active{ transform:translateY(0); }
+  .btn:focus-visible{ outline:3px solid var(--pink-deep); outline-offset:3px; }
+
+  .btn.ghost{
+    background:#fff;
+    color:var(--pink-deep);
+    border:2px solid var(--pink-mid);
+    box-shadow:none;
+  }
+  .btn.ghost:hover{ background:var(--pink-bg-2); }
+
+  /* screen 2: yes/no row */
+  .choice-row{
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    min-height:60px;
+  }
+  .choice-row.swap{
+    flex-direction:row-reverse;
+  }
+  #noBtn{ transition:transform .12s ease; }
+
+  /* screen 3: date options grid */
+  .options-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+    margin-top:6px;
+  }
+  .option{
+    background:var(--pink-bg-1);
+    border:2px solid var(--pink-bg-2);
+    border-radius:22px;
+    padding:20px 10px 16px;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+    transition:transform .15s ease, border-color .15s ease, background .15s ease;
+    color:var(--ink);
+    font-family:'Quicksand', sans-serif;
+    font-weight:700;
+    font-size:1rem;
+  }
+  .option svg{ width:56px; height:56px; }
+  .option:hover{
+    transform:translateY(-4px);
+    border-color:var(--pink-strong);
+    background:#fff;
+  }
+  .option:focus-visible{ outline:3px solid var(--pink-deep); outline-offset:3px; }
+
+  .final-heart{
+    width:64px;
+    height:64px;
+    margin:0 auto 4px;
+    animation:pop .6s cubic-bezier(.2,1.3,.4,1);
+  }
+  .final-heart svg{ width:100%; height:100%; }
+  @keyframes pop{
+    0%{ transform:scale(0); }
+    70%{ transform:scale(1.15); }
+    100%{ transform:scale(1); }
+  }
+
+  @media (max-width:380px){
+    .card{ padding:38px 20px 32px; border-radius:24px; }
+    h1{ font-size:2.1rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hearts" id="hearts"></div>
+
+<div class="stage">
+
+  <!-- Pantalla 1 -->
+  <section class="card active" id="screen1">
+    <span class="eyebrow-heart">
+      <svg viewBox="0 0 32 28"><path fill="#ff8fab" d="M16 27S2 18 2 9.8C2 4.9 6 1 10.8 1c2.4 0 4.6 1.1 6.1 2.9C18.4 2.1 20.6 1 23 1 27.8 1 32 4.9 32 9.8 32 18 18 27 16 27z"/></svg>
+    </span>
+    <h1>Hola Isa</h1>
+    <p class="sub">Te invito a una cita</p>
+    <button class="btn" onclick="goTo('screen2')">Continuar</button>
+  </section>
+
+  <!-- Pantalla 2 -->
+  <section class="card" id="screen2">
+    <span class="eyebrow-heart">
+      <svg viewBox="0 0 32 28"><path fill="#ff8fab" d="M16 27S2 18 2 9.8C2 4.9 6 1 10.8 1c2.4 0 4.6 1.1 6.1 2.9C18.4 2.1 20.6 1 23 1 27.8 1 32 4.9 32 9.8 32 18 18 27 16 27z"/></svg>
+    </span>
+    <h1>¿Aceptarías tener una cita conmigo?</h1>
+    <p class="sub">Es una pregunta con una sola respuesta correcta</p>
+    <div class="choice-row" id="choiceRow">
+      <button class="btn" id="yesBtn" onclick="goTo('screen3')">Sí</button>
+      <button class="btn ghost" id="noBtn">No</button>
+    </div>
+  </section>
+
+  <!-- Pantalla 3 -->
+  <section class="card" id="screen3">
+    <span class="eyebrow-heart">
+      <svg viewBox="0 0 32 28"><path fill="#ff8fab" d="M16 27S2 18 2 9.8C2 4.9 6 1 10.8 1c2.4 0 4.6 1.1 6.1 2.9C18.4 2.1 20.6 1 23 1 27.8 1 32 4.9 32 9.8 32 18 18 27 16 27z"/></svg>
+    </span>
+    <h1>¡Selecciona la cita!</h1>
+    <p class="sub">Tú eliges el plan</p>
+    <div class="options-grid">
+
+      <button class="option" onclick="goTo('screen4')">
+        <svg viewBox="0 0 64 64"><path fill="#c98a5e" d="M14 26h30v14a15 15 0 0 1-15 15A15 15 0 0 1 14 40V26z"/><path fill="#e0a878" d="M14 26h30v6H14z"/><path fill="none" stroke="#c98a5e" stroke-width="3" d="M44 30h4a6 6 0 0 1 0 12h-4"/><path fill="#fff" opacity=".85" d="M20 12c-3 2-3 5 0 7-3 2-3 5 0 7" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/><path fill="#fff" opacity=".85" d="M29 12c-3 2-3 5 0 7-3 2-3 5 0 7" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+        Café
+      </button>
+
+      <button class="option" onclick="goTo('screen4')">
+        <svg viewBox="0 0 64 64"><ellipse cx="26" cy="24" rx="13" ry="9" fill="#e8a25c"/><ellipse cx="26" cy="24" rx="13" ry="9" fill="none" stroke="#c97f3a" stroke-width="2"/><ellipse cx="40" cy="40" rx="13" ry="9" fill="#e8a25c" transform="rotate(20 40 40)"/><ellipse cx="40" cy="40" rx="13" ry="9" fill="none" stroke="#c97f3a" stroke-width="2" transform="rotate(20 40 40)"/><path d="M16 22l-6-2M16 26l-7 1M45 46l6 2M45 42l7-1" stroke="#c97f3a" stroke-width="2" stroke-linecap="round"/></svg>
+        Alitas
+      </button>
+
+      <button class="option" onclick="goTo('screen4')">
+        <svg viewBox="0 0 64 64">
+          <path fill="#ffd1e3" d="M32 22c9 0 14 6 14 13 0 8-6 13-14 13s-14-5-14-13c0-7 5-13 14-13z"/>
+          <path fill="#fff" opacity=".55" d="M22 32c1-6 4-9 9-10-5 2-7 6-8 10z"/>
+          <path fill="#ffe3ee" stroke="#e8a4bd" stroke-width="1.5" d="M22 28L32 58 42 28c-3 3-6 4-10 4s-7-1-10-4z"/>
+          <path stroke="#e8a4bd" stroke-width="1.2" fill="none" d="M25 32l3 20M32 34l0 20M39 32l-3 20"/>
+        </svg>
+        Nieve
+      </button>
+
+      <button class="option" onclick="goTo('screen4')">
+        <svg viewBox="0 0 64 64">
+          <path fill="#f4b942" d="M18 22h20v26a4 4 0 0 1-4 4H22a4 4 0 0 1-4-4V22z"/>
+          <path fill="#fff" opacity=".9" d="M18 22h20v6a26 26 0 0 1-4 3c-3 2-4 4-4 7 0-3-1-5-4-7a26 26 0 0 1-4-3z"/>
+          <path fill="none" stroke="#d99a1f" stroke-width="2.5" d="M38 28h4a5 5 0 0 1 0 10h-4"/>
+          <path fill="none" stroke="#d99a1f" stroke-width="2" d="M18 22h20"/>
+        </svg>
+        Michelada
+      </button>
+
+    </div>
+  </section>
+
+  <!-- Pantalla 4 -->
+  <section class="card" id="screen4">
+    <div class="final-heart">
+      <svg viewBox="0 0 32 28"><path fill="#ff8fab" d="M16 27S2 18 2 9.8C2 4.9 6 1 10.8 1c2.4 0 4.6 1.1 6.1 2.9C18.4 2.1 20.6 1 23 1 27.8 1 32 4.9 32 9.8 32 18 18 27 16 27z"/></svg>
+    </div>
+    <h1>Sabía que querías salir conmigo</h1>
+    <p class="sub">Nos vemos pronto</p>
+  </section>
+
+</div>
+
+<script>
+  function goTo(id){
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // el botón "No" invierte posiciones cada vez que se intenta presionar
+  const choiceRow = document.getElementById('choiceRow');
+  const noBtn = document.getElementById('noBtn');
+  let swapped = false;
+
+  function dodgeNo(){
+    swapped = !swapped;
+    choiceRow.classList.toggle('swap', swapped);
+  }
+
+  // se activa tanto al pasar el mouse (desktop) como al tocar (mobile),
+  // así el botón "No" nunca alcanza a ser presionado
+  noBtn.addEventListener('mouseenter', dodgeNo);
+  noBtn.addEventListener('touchstart', function(e){ e.preventDefault(); dodgeNo(); }, {passive:false});
+  noBtn.addEventListener('click', function(e){ e.preventDefault(); dodgeNo(); });
+
+  // corazones flotantes decorativos (SVG, sin emojis)
+  const heartsContainer = document.getElementById('hearts');
+  const heartSVG = '<svg viewBox="0 0 32 28" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M16 27S2 18 2 9.8C2 4.9 6 1 10.8 1c2.4 0 4.6 1.1 6.1 2.9C18.4 2.1 20.6 1 23 1 27.8 1 32 4.9 32 9.8 32 18 18 27 16 27z"/></svg>';
+  for(let i=0;i<14;i++){
+    const s = document.createElement('span');
+    s.innerHTML = heartSVG;
+    const size = 14 + Math.random()*20;
+    s.style.left = Math.random()*100 + '%';
+    s.style.width = size + 'px';
+    s.style.height = (size*28/32) + 'px';
+    s.style.color = 'var(--pink-mid)';
+    s.style.animationDuration = (10 + Math.random()*10) + 's';
+    s.style.animationDelay = (Math.random()*10) + 's';
+    heartsContainer.appendChild(s);
+  }
+</script>
+
+</body>
+</html>
